@@ -1,0 +1,31 @@
+routes:
+
+GET/ : { 
+	/api/users,
+	/api/works,
+	/api/works/:company-name
+	/api/total-work
+}
+
+POST : {
+	/api/user/login,
+	/api/user/signup - one time only,
+	/api/works,
+}
+
+PATCH : {
+	/api/works,	
+}
+
+DELETE :{
+	/api/works,
+}
+
+frontend-routes: {
+	/ = dashboard,
+	/work/new = add work,
+	/work= display work,
+	/work/:wid = update work,
+	/user/new = add user,
+	/user = display usres 
+}

@@ -1,0 +1,15 @@
+works : {
+	Invoice no,
+	Company/Customer Name,
+	date,
+	carNo,
+	amount,
+	payment type,
+	branch,
+}
+
+user : {
+	name,
+	email,
+	pass
+}
