@@ -15,7 +15,7 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 
-const AddWork = () => {
+const AddUsers = () => {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
@@ -139,4 +139,4 @@ const AddWork = () => {
   );
 };
 
-export default AddWork;
+export default AddUsers;

@@ -1,4 +1,6 @@
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../schema/user-schema");
@@ -63,10 +65,18 @@ const createUser = async (req, res, next) => {
       new HttpError("Could not create user, email already exists.", 422)
     );
   }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (error) {
+    return next(new HttpError("Could not create user, please try again.", 500));
+  }
+
   const createdUser = new User({
     name,
     email,
-    password,
+    password: hashedPassword,
   });
   try {
     await createdUser.save();
@@ -150,10 +160,18 @@ const signup = async (req, res, next) => {
       new HttpError("Could not create user, email already exists.", 422)
     );
   }
+
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (error) {
+    return next(new HttpError("Could not create user, please try again.", 500));
+  }
+
   const createdUser = new User({
     name,
     email,
-    password,
+    password: hashedPassword,
   });
   try {
     await createdUser.save();
@@ -162,7 +180,23 @@ const signup = async (req, res, next) => {
       new HttpError("Something went wrong, Could not create user.", 500)
     );
   }
-  res.json({ user: createdUser }).status(201);
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      "jay_ambe",
+      { expiresIn: "1h" }
+    );
+  } catch (error) {
+    return next(
+      new HttpError("Something went wrong, Could not create user.", 500)
+    );
+  }
+
+  res
+    .json({ userId: createdUser.id, email: createdUser.email, token: token })
+    .status(201);
 };
 
 const login = async (req, res, next) => {
@@ -175,7 +209,7 @@ const login = async (req, res, next) => {
 
   let hasUser;
   try {
-    hasUser = await User.findOne({ email: email, password: password });
+    hasUser = await User.findOne({ email: email });
   } catch (err) {
     return next(new HttpError("Something went wrong, please try again.", 500));
   }
@@ -183,7 +217,36 @@ const login = async (req, res, next) => {
     return next(new HttpError("Please enter valid credentials.", 422));
   }
 
-  res.json({ message: "Login successfully" }).status(201);
+  let isValidPassword;
+  try {
+    isValidPassword = await bcrypt.compare(password, hasUser.password);
+  } catch (error) {
+    return next(
+      new HttpError(
+        "Could not log you in, please check your credentials and try again.",
+        500
+      )
+    );
+  }
+
+  if (!isValidPassword) {
+    return next(new HttpError("Please enter valid credentials.", 422));
+  }
+
+  let token;
+  try {
+    token = jwt.sign({ userId: hasUser.id, email: hasUser.email }, "jay_ambe", {
+      expiresIn: "1h",
+    });
+  } catch (error) {
+    return next(
+      new HttpError("Something went wrong, Could not logged in user.", 500)
+    );
+  }
+
+  res
+    .json({ userId: hasUser.id, email: hasUser.email, token: token })
+    .status(201);
 };
 
 exports.getUsers = getUsers;

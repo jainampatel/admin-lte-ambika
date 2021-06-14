@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router";
 import Input from "../../shared/components/FormElements/Input";
 import Footer from "../../shared/components/theme/Footer";
@@ -7,6 +7,7 @@ import Navbar from "../../shared/components/theme/Navbar";
 import Sidebar from "../../shared/components/theme/Sidebar";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { AuthContext } from "../../shared/context/auth-context";
 import { useForm } from "../../shared/hooks/form-hook";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import {
@@ -17,6 +18,7 @@ import {
 
 const UpdateWork = () => {
   const workId = useParams().workId;
+  const auth = useContext(AuthContext);
   const history = useHistory();
   const [loadedWork, setLoadedWork] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -81,7 +83,7 @@ const UpdateWork = () => {
       } catch (err) {}
     };
     getWork();
-  }, [sendRequest, workId, setFormData]);
+  }, [sendRequest, workId, setFormData, auth]);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -100,6 +102,8 @@ const UpdateWork = () => {
         }),
         {
           "Content-Type": "application/json",
+          // eslint-disable-next-line
+          Authorization: "Bearer" + " " + auth.token,
         }
       );
       history.push("/work");

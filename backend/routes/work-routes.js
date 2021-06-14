@@ -2,12 +2,13 @@ const express = require("express");
 const { check } = require("express-validator");
 
 const workControllers = require("../controllers/work-controllers");
+const checkAuth = require("../middleware/check-auth");
 
 const router = express.Router();
 
 router.get("/", workControllers.getWorks);
 router.get("/:wid", workControllers.getWorkById);
-
+router.use(checkAuth);
 router.post(
   "/",
   [

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import Input from "../../shared/components/FormElements/Input";
 import Footer from "../../shared/components/theme/Footer";
@@ -7,6 +7,7 @@ import Navbar from "../../shared/components/theme/Navbar";
 import Sidebar from "../../shared/components/theme/Sidebar";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { AuthContext } from "../../shared/context/auth-context";
 import { useForm } from "../../shared/hooks/form-hook";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../../shared/util/validators";
 
 const AddWork = () => {
+  const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
@@ -24,6 +26,10 @@ const AddWork = () => {
         isValid: false,
       },
       customerName: {
+        value: "",
+        isValid: false,
+      },
+      date: {
         value: "",
         isValid: false,
       },
@@ -48,7 +54,7 @@ const AddWork = () => {
         JSON.stringify({
           invoiceno: formState.inputs.invoiceno.value,
           customerName: formState.inputs.customerName.value,
-          date: event.target.date.value,
+          date: formState.inputs.date.value,
           carNo: formState.inputs.carNo.value,
           amount: formState.inputs.amount.value,
           paymentType: event.target.paymentType.value,
@@ -56,6 +62,8 @@ const AddWork = () => {
         }),
         {
           "Content-Type": "application/json",
+          // eslint-disable-next-line
+          Authorization: "Bearer" + " " + auth.token,
         }
       );
     } catch (error) {}
@@ -105,8 +113,16 @@ const AddWork = () => {
                         onInput={inputHandler}
                         divClass="form-group"
                       />
-                      <label>Payment Type</label>
-                      <input id="date" type="date" className="form-control" />
+                      <Input
+                        id="date"
+                        element="input"
+                        type="date"
+                        label="Date"
+                        validators={[VALIDATOR_REQUIRE()]}
+                        errorText="Please enter valid date."
+                        onInput={inputHandler}
+                        divClass="form-group"
+                      />
                       <Input
                         id="carNo"
                         element="input"

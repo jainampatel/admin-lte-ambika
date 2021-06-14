@@ -62,7 +62,7 @@ const Auth = () => {
     event.preventDefault();
     if (isLoginMode) {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/user/login",
           "POST",
           JSON.stringify({
@@ -74,12 +74,12 @@ const Auth = () => {
           }
         );
 
-        auth.login();
+        auth.login(responseData.userId, responseData.token);
         history.push("/");
       } catch (error) {}
     } else {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/user/signup",
           "POST",
           JSON.stringify({
@@ -91,7 +91,7 @@ const Auth = () => {
             "Content-Type": "application/json",
           }
         );
-        auth.login();
+        auth.login(responseData.userId, responseData.token);
         history.push("/");
       } catch (error) {}
     }
@@ -141,7 +141,7 @@ const Auth = () => {
             disabled={!formState.isValid}
             style={{
               marginTop: "20px",
-              borderRadius: "2rem",
+              borderRadius: "0.5rem",
               boxShadow: "0 5px 10px rgba(0, 0, 0, 0.26)",
             }}
             className="btn btn-primary"
@@ -153,7 +153,7 @@ const Auth = () => {
           <button
             onClick={switchModeHandler}
             style={{
-              borderRadius: "2rem",
+              borderRadius: "0.5rem",
               boxShadow: "0 5px 10px rgba(0, 0, 0, 0.26)",
             }}
             className="btn btn-success"
